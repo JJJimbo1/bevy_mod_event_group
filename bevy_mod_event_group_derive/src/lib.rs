@@ -79,9 +79,9 @@ pub fn event_group(input: TokenStream, item: TokenStream) -> TokenStream {
         let Data::Struct(data) = &ast.data else { return quote!{ compile_error!("Item must be a struct") }.into(); };
         data.fields.iter().map(|field| {
 
-            let Some(ident) = field.ident.as_ref().map(|ident| ident.to_token_stream()) else { return quote!{ compile_error!("No attribute named event_type") }.into(); };
-            let Type::Path(field) = &field.ty else { return quote!{ compile_error!("No attribute named event_type") }.into(); };
-            let Some(type_ident) = field.path.get_ident().map(|ident| ident.to_token_stream()) else { return quote!{ compile_error!("No attribute named event_type") }.into(); };
+            let Some(ident) = field.ident.as_ref().map(|ident| ident.to_token_stream()) else { return quote!{ compile_error!() }.into(); };
+            let Type::Path(field) = &field.ty else { return quote!{ compile_error!() }.into(); };
+            let Some(type_ident) = field.path.get_ident().map(|ident| ident.to_token_stream()) else { return quote!{ compile_error!() }.into(); };
             quote! {
                 pub #ident: #type_ident,
             }
@@ -98,7 +98,7 @@ pub fn event_group(input: TokenStream, item: TokenStream) -> TokenStream {
         }).collect::<proc_macro2::TokenStream>()
     };
 
-    let Some((idents, types, writers, events)) = events else { return quote!{ compile_error!("No attribute named group") }.into(); };
+    let Some((idents, types, writers, events)) = events else { return quote!{ compile_error!() }.into(); };
 
     quote!(
         #ast

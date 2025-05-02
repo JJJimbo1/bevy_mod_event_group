@@ -1,0 +1,3 @@
+bevy_mod_event_group allows you to translate a single main event into multiple different sub types.
+
+Using the event_group macro automatically implements the system, as well as implements From for both the main event and sub type events, and automatically duplicates fields on the main event to the sub types.

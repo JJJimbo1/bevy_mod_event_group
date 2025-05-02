@@ -79,7 +79,7 @@ pub fn event_group(input: TokenStream, item: TokenStream) -> TokenStream {
         let Data::Struct(data) = &ast.data else { return quote!(compile_error!("Item must be a struct")).into(); };
         data.fields.iter().map(|field| {
             let ident = field.ident.to_token_stream();
-            quote!(#ident: value.#ident.clone(),)
+            quote!(#ident: value.#ident,)
         }).collect::<proc_macro2::TokenStream>()
     };
 
@@ -93,7 +93,7 @@ pub fn event_group(input: TokenStream, item: TokenStream) -> TokenStream {
     #[cfg(not(feature = "serde"))]
     let sd = quote! { };
 
-    let x = quote!(
+    quote!(
         #ast
 
         impl #name {
@@ -145,7 +145,5 @@ pub fn event_group(input: TokenStream, item: TokenStream) -> TokenStream {
                 }
             }
         }
-    );
-    println!("{}", x);
-    x.into()
+    ).into()
 }

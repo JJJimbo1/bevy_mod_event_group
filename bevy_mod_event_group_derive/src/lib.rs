@@ -100,6 +100,14 @@ pub fn event_group(input: TokenStream, item: TokenStream) -> TokenStream {
 
     let Some((idents, types, writers, events)) = events else { return quote!{ compile_error!() }.into(); };
 
+
+    #[cfg(feature = "serde")]
+    let sd = quote! {
+        serde::Serialize, serde::Deserialize
+    };
+    #[cfg(not(feature = "serde"))]
+    let sd = quote! { };
+
     quote!(
         #ast
 
@@ -130,8 +138,7 @@ pub fn event_group(input: TokenStream, item: TokenStream) -> TokenStream {
             }
         }
 
-        #[derive(Debug, Clone, Event)]
-        #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+        #[derive(Debug, Clone, Event, #sd)]
         pub struct #group<T> {
             #fields
             phantom_data: std::marker::PhantomData<T>,

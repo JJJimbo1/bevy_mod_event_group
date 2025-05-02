@@ -8,6 +8,7 @@ edition = "2024"
 syn = { workspace = true }
 quote = { workspace = true }
 proc-macro2 = { workspace = true }
+serde = { workspace = true, optional = true }
 
 [lib]
 proc-macro = true

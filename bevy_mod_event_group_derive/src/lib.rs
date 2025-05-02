@@ -131,6 +131,7 @@ pub fn event_group(input: TokenStream, item: TokenStream) -> TokenStream {
         }
 
         #[derive(Debug, Clone, Event)]
+        #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
         pub struct #group<T> {
             #fields
             phantom_data: std::marker::PhantomData<T>,

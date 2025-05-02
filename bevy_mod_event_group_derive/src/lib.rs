@@ -56,18 +56,10 @@ pub fn event_group(input: TokenStream, item: TokenStream) -> TokenStream {
             let Ok(l_event) = event.to_string().to_lowercase().parse::<proc_macro2::TokenStream>() else { return None; };
             let Ok(u_event) = event.to_string().parse::<proc_macro2::TokenStream>() else { return None; };
             Some((
-                quote! {
-                    mut #l_event,
-                },
-                quote! {
-                    EventWriter<#group<#u_event>>,
-                },
-                quote! {
-                    #type_type::#u_event => { #l_event.send(event.clone().into()); },
-                },
-                quote! {
-                    .add_event::<#group<#u_event>>()
-                }
+                quote!(mut #l_event,),
+                quote!(EventWriter<#group<#u_event>>,),
+                quote!(#type_type::#u_event => { #l_event.send(event.clone().into()); },),
+                quote!(.add_event::<#group<#u_event>>())
             ))
         }).collect::<(proc_macro2::TokenStream, proc_macro2::TokenStream, proc_macro2::TokenStream, proc_macro2::TokenStream)>();
 
@@ -76,25 +68,18 @@ pub fn event_group(input: TokenStream, item: TokenStream) -> TokenStream {
 
 
     let fields = {
-        let Data::Struct(data) = &ast.data else { return quote!{ compile_error!("Item must be a struct") }.into(); };
+        let Data::Struct(data) = &ast.data else { return quote!(compile_error!("Item must be a struct")).into(); };
         data.fields.iter().map(|field| {
-
-            let Some(ident) = field.ident.as_ref().map(|ident| ident.to_token_stream()) else { return quote!{ compile_error!() }.into(); };
-            let Type::Path(field) = &field.ty else { return quote!{ compile_error!() }.into(); };
-            let Some(type_ident) = field.path.get_ident().map(|ident| ident.to_token_stream()) else { return quote!{ compile_error!() }.into(); };
-            quote! {
-                pub #ident: #type_ident,
-            }
+            let field = field.to_token_stream();
+            quote!(#field,)
         }).collect::<proc_macro2::TokenStream>()
     };
 
     let from_impl = {
-        let Data::Struct(data) = &ast.data else { return quote!{ compile_error!("Item must be a struct") }.into(); };
+        let Data::Struct(data) = &ast.data else { return quote!(compile_error!("Item must be a struct")).into(); };
         data.fields.iter().map(|field| {
             let ident = field.ident.to_token_stream();
-            quote! {
-                #ident: value.#ident.clone(),
-            }
+            quote!(#ident: value.#ident.clone(),)
         }).collect::<proc_macro2::TokenStream>()
     };
 
@@ -108,7 +93,7 @@ pub fn event_group(input: TokenStream, item: TokenStream) -> TokenStream {
     #[cfg(not(feature = "serde"))]
     let sd = quote! { };
 
-    quote!(
+    let x = quote!(
         #ast
 
         impl #name {
@@ -160,5 +145,7 @@ pub fn event_group(input: TokenStream, item: TokenStream) -> TokenStream {
                 }
             }
         }
-    ).into()
+    );
+    println!("{}", x);
+    x.into()
 }

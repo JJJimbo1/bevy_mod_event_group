@@ -21,7 +21,7 @@ pub enum EventType {
 )]
 pub struct MyEvents {
     pub my_event_type: EventType,
-    pub x: i32,
+    pub x: Option<i32>,
     pub y: String,
 }
 
@@ -39,7 +39,7 @@ fn send_event(
 ) {
 	events.send(MyEvents { my_event_type: EventType::House, y: String::from("My Home"), ..Default::default() });
 	events.send(MyEvents { my_event_type: EventType::Car, ..Default::default() });
-	events.send(MyEvents { my_event_type: EventType::Brick, x: 500, ..Default::default() });
+	events.send(MyEvents { my_event_type: EventType::Brick, x: Some(500), ..Default::default() });
 }
 
 fn house_events(
@@ -62,6 +62,6 @@ fn brick_events(
 	mut events: EventReader<MyEvent<Brick>>,
 ) {
 	for event in events.read() {
-		println!("{} Bricks", event.x);
+		println!("{} Bricks", event.x.unwrap());
 	}
 }

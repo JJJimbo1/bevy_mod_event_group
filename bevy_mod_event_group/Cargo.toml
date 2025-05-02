@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["JJJimbo1"]
 edition = "2024"
 
+[features]
+serde = ["bevy_mod_event_group_derive/serde"]
+
 [dependencies]
 bevy_app = { workspace = true }
 bevy_ecs = { workspace = true }

@@ -37,9 +37,9 @@ fn main() {
 fn send_event(
 	mut events: EventWriter<MyEvents>,
 ) {
-	events.send(MyEvents { my_event_type: EventType::House, y: String::from("My Home"), ..Default::default() });
-	events.send(MyEvents { my_event_type: EventType::Car, ..Default::default() });
-	events.send(MyEvents { my_event_type: EventType::Brick, x: Some(500), ..Default::default() });
+	events.write(MyEvents { my_event_type: EventType::House, y: String::from("My Home"), ..Default::default() });
+	events.write(MyEvents { my_event_type: EventType::Car, ..Default::default() });
+	events.write(MyEvents { my_event_type: EventType::Brick, x: Some(500), ..Default::default() });
 }
 
 fn house_events(

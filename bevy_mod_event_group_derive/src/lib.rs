@@ -58,7 +58,7 @@ pub fn event_group(input: TokenStream, item: TokenStream) -> TokenStream {
             Some((
                 quote!(mut #l_event,),
                 quote!(EventWriter<#group<#u_event>>,),
-                quote!(#type_type::#u_event => { #l_event.send(event.clone().into()); },),
+                quote!(#type_type::#u_event => { #l_event.write(event.clone().into()); },),
                 quote!(.add_event::<#group<#u_event>>())
             ))
         }).collect::<(proc_macro2::TokenStream, proc_macro2::TokenStream, proc_macro2::TokenStream, proc_macro2::TokenStream)>();

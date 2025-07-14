@@ -1,0 +1,13 @@
+[package]
+name = "bevy_mod_event_group_derive"
+version = "0.1.0"
+authors = ["JJJimbo1"]
+edition = "2024"
+
+[dependencies]
+syn = { workspace = true }
+quote = { workspace = true }
+proc-macro2 = { workspace = true }
+
+[lib]
+proc-macro = true

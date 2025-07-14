@@ -1,0 +1,17 @@
+[package]
+name = "bevy_mod_event_group"
+version = "0.1.0"
+authors = ["JJJimbo1"]
+edition = "2024"
+
+[dependencies]
+bevy_app = { workspace = true }
+bevy_ecs = { workspace = true }
+bevy_mod_event_group_derive = { path = "../bevy_mod_event_group_derive"}
+
+[dev-dependencies]
+bevy = "0.16"
+
+[[example]]
+name = "simple"
+path = "examples/simple.rs"

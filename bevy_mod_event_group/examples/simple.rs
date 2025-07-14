@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use bevy::prelude::*;
 use bevy_mod_event_group::{EventGroupAppExt, event_group};
 

@@ -68,7 +68,7 @@ pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
             #[derive(#main_derive)]
             pub struct #name<T = ()> {
                 #fields
-                phantom_data: PhantomData<T>
+                phantom_data: std::marker::PhantomData<T>
             }
         }
     };
@@ -85,7 +85,7 @@ pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
                     fn from(value: #name) -> #name<#ident> {
                         Self {
                             #fields
-                            phantom_data: PhantomData,
+                            phantom_data: std::marker::PhantomData,
                         }
                     }
                 }
@@ -93,7 +93,7 @@ pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
                     fn from(value: #name<#ident>) -> #name {
                         Self {
                             #fields
-                            phantom_data: PhantomData,
+                            phantom_data: std::marker::PhantomData,
                         }
                     }
                 }

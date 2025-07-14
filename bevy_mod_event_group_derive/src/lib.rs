@@ -3,19 +3,15 @@ use quote::{quote, ToTokens};
 use syn::{parse::{discouraged::{AnyDelimiter}, Parse, ParseStream}, parse_macro_input, Data, DeriveInput, Field, Token};
 
 struct EventGroupAttributes {
-    main_derives: proc_macro2::TokenStream,
-    sub_derives: proc_macro2::TokenStream,
+    derives: proc_macro2::TokenStream,
 }
 
 impl Parse for EventGroupAttributes {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let main_derives = input.parse_any_delimiter()?;
-        let _ = input.parse::<Token!(,)>()?;
-        let sub_derives = input.parse_any_delimiter()?;
         let _ = input.parse::<Token!(,)>();
         Ok(Self{
-            main_derives: main_derives.2.parse::<proc_macro2::TokenStream>()?,
-            sub_derives: sub_derives.2.parse::<proc_macro2::TokenStream>()?,
+            derives: main_derives.2.parse::<proc_macro2::TokenStream>()?,
         })
     }
 }
@@ -25,8 +21,7 @@ pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
     let attrs: EventGroupAttributes = parse_macro_input!(attrs as EventGroupAttributes);
     let ast: DeriveInput = parse_macro_input!(input as DeriveInput);
     
-    let main_derive = attrs.main_derives;
-    let sub_derive = attrs.sub_derives;
+    let main_derive = attrs.derives;
     let name = ast.ident;
     
     let (event_ident, event_type, sub_events) = {
@@ -46,13 +41,6 @@ pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
         }).collect::<Vec<proc_macro2::TokenStream>>();
         (event_ident, event_type, sub_events)
     };
-
-    let sub_defs = sub_events.iter().map(|event| {
-        quote! {
-            #[derive(#sub_derive)]
-            pub struct #event;
-        }
-    }).collect::<proc_macro2::TokenStream>();
 
     let main_def = {
         let Data::Struct(data) = &ast.data else { return quote!(compile_error!("Item must be a struct")).into(); };
@@ -113,8 +101,6 @@ pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
     }).collect::<(proc_macro2::TokenStream, proc_macro2::TokenStream, proc_macro2::TokenStream, proc_macro2::TokenStream)>();
 
     let result = quote! {
-        #sub_defs
-
         #main_def
 
         impl #name {

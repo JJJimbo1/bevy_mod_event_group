@@ -9,6 +9,11 @@ pub enum EventType {
     Brick,
 }
 
+pub struct House;
+pub struct Car;
+pub struct Brick;
+
+
 fn main() {
 	App::new()
 		.add_plugins(MinimalPlugins)
@@ -52,7 +57,6 @@ fn brick_events(
 
 #[event_group(
 	(Debug, Default, Clone, Event),
-	(Debug, Default, Clone, Component),
 )]
 pub struct MyEvent {
     #[events(House, Car, Brick)]

@@ -55,9 +55,7 @@ fn brick_events(
 	}
 }
 
-#[event_group(
-	(Debug, Default, Clone, Event),
-)]
+#[event_group(Debug, Default, Clone, Event)]
 pub struct MyEvent {
     #[events(House, Car, Brick)]
     pub my_event_type: EventType,

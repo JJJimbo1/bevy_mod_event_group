@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
-use syn::{parse::{discouraged::{AnyDelimiter}, Parse, ParseStream}, parse_macro_input, Data, DeriveInput, Field, Token};
+use syn::{parse::{Parse, ParseStream}, parse_macro_input, Data, DeriveInput, Field};
 
 struct EventGroupAttributes {
     derives: proc_macro2::TokenStream,
@@ -8,10 +8,8 @@ struct EventGroupAttributes {
 
 impl Parse for EventGroupAttributes {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let main_derives = input.parse_any_delimiter()?;
-        let _ = input.parse::<Token!(,)>();
         Ok(Self{
-            derives: main_derives.2.parse::<proc_macro2::TokenStream>()?,
+            derives: input.parse::<proc_macro2::TokenStream>()?,
         })
     }
 }
@@ -21,7 +19,7 @@ pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
     let attrs: EventGroupAttributes = parse_macro_input!(attrs as EventGroupAttributes);
     let ast: DeriveInput = parse_macro_input!(input as DeriveInput);
     
-    let main_derive = attrs.derives;
+    let derives = attrs.derives;
     let name = ast.ident;
     
     let (event_ident, event_type, sub_events) = {
@@ -53,7 +51,7 @@ pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
             quote!(#field,)
         }).collect::<proc_macro2::TokenStream>();
         quote! {
-            #[derive(#main_derive)]
+            #[derive(#derives)]
             pub struct #name<T = ()> {
                 #fields
                 phantom_data: std::marker::PhantomData<T>
@@ -61,32 +59,22 @@ pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
         }
     };
 
-    let froms = {
+    let from = {
         let Data::Struct(data) = &ast.data else { return quote!(compile_error!("Item must be a struct")).into(); };
         let fields = data.fields.iter().map(|field| {
             let ident = field.ident.to_token_stream();
             quote!(#ident: value.#ident,)
         }).collect::<proc_macro2::TokenStream>();
-        sub_events.iter().map(|ident| {
-            quote! {
-                impl From<#name> for #name<#ident> {
-                    fn from(value: #name) -> #name<#ident> {
-                        Self {
-                            #fields
-                            phantom_data: std::marker::PhantomData,
-                        }
-                    }
-                }
-                impl From<#name<#ident>> for #name {
-                    fn from(value: #name<#ident>) -> #name {
-                        Self {
-                            #fields
-                            phantom_data: std::marker::PhantomData,
-                        }
+        quote! {
+            impl<T, U> bevy_mod_event_group::FromGroup<#name<U>> for #name<T> {
+                fn from_group(value: #name<U>) -> #name<T> {
+                    Self {
+                        #fields
+                        phantom_data: std::marker::PhantomData,
                     }
                 }
             }
-        }).collect::<proc_macro2::TokenStream>()
+        }
     };
 
     let (idents, types, writers, events) = sub_events.iter().map(|token| {
@@ -95,7 +83,7 @@ pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
         (
             quote!(mut #lower_case,),
             quote!(EventWriter<#name<#token>>,),
-            quote!(#event_type::#upper_case => { #lower_case.write(event.clone().into()); }, ),
+            quote!(#event_type::#upper_case => { #lower_case.write(event.clone().into_group()); }, ),
             quote!(.add_event::<#name<#token>>()),
         )
     }).collect::<(proc_macro2::TokenStream, proc_macro2::TokenStream, proc_macro2::TokenStream, proc_macro2::TokenStream)>();
@@ -112,6 +100,8 @@ pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
                     #types
                 )
             ) {
+
+                use bevy_mod_event_group::IntoGroup;
                 for event in reader.read() {
                     match event.#event_ident {
                         #writers
@@ -130,7 +120,7 @@ pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
             }
         }
 
-        #froms
+        #from
     };
     result.into()
 }

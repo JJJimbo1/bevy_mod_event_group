@@ -10,7 +10,7 @@ bevy_ecs = { workspace = true }
 bevy_mod_event_group_derive = { path = "../bevy_mod_event_group_derive"}
 
 [dev-dependencies]
-bevy = "0.16"
+bevy = "0.17.*"
 
 [[example]]
 name = "simple"

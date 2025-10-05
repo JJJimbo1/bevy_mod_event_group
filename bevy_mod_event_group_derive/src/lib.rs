@@ -82,9 +82,9 @@ pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
         let lower_case = token.to_string().to_lowercase().parse::<proc_macro2::TokenStream>().unwrap();
         (
             quote!(mut #lower_case,),
-            quote!(EventWriter<#name<#token>>,),
+            quote!(MessageWriter<#name<#token>>,),
             quote!(#event_type::#upper_case => { #lower_case.write(event.clone().into_group()); }, ),
-            quote!(.add_event::<#name<#token>>()),
+            quote!(.add_message::<#name<#token>>()),
         )
     }).collect::<(proc_macro2::TokenStream, proc_macro2::TokenStream, proc_macro2::TokenStream, proc_macro2::TokenStream)>();
 
@@ -93,7 +93,7 @@ pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
 
         impl #name {
             pub fn event_group_system(
-                mut reader: EventReader<#name>,
+                mut reader: MessageReader<#name>,
                 (
                     #idents
                 ): (
@@ -114,7 +114,7 @@ pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
         impl bevy_mod_event_group::EventGroup for #name {
             fn add_event_group(app: &mut App) -> &mut App {
                 app
-                    .add_event::<#name>()
+                    .add_message::<#name>()
                     #events
                     .add_systems(Update, Self::event_group_system)
             }

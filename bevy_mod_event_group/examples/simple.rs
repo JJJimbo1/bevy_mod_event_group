@@ -24,7 +24,7 @@ fn main() {
 }
 
 fn send_event(
-	mut events: EventWriter<MyEvent>,
+	mut events: MessageWriter<MyEvent>,
 ) {
 	events.write(MyEvent { my_event_type: EventType::House, y: String::from("My Home"), ..default() });
 	events.write(MyEvent { my_event_type: EventType::Car, ..default() });
@@ -32,7 +32,7 @@ fn send_event(
 }
 
 fn house_events(
-	mut events: EventReader<MyEvent<House>>,
+	mut events: MessageReader<MyEvent<House>>,
 ) {
 	for event in events.read() {
 		println!("Home sweet home. {}", event.y);
@@ -40,7 +40,7 @@ fn house_events(
 }
 
 fn car_events(
-	mut events: EventReader<MyEvent<Car>>,
+	mut events: MessageReader<MyEvent<Car>>,
 ) {
 	for _event in events.read() {
 		println!("Vroom vroom!");
@@ -48,14 +48,14 @@ fn car_events(
 }
 
 fn brick_events(
-	mut events: EventReader<MyEvent<Brick>>,
+	mut events: MessageReader<MyEvent<Brick>>,
 ) {
 	for event in events.read() {
 		println!("{} Bricks", event.x.unwrap());
 	}
 }
 
-#[event_group(Debug, Default, Clone, Event)]
+#[event_group(Debug, Default, Clone, Message)]
 pub struct MyEvent {
     #[events(House, Car, Brick)]
     pub my_event_type: EventType,

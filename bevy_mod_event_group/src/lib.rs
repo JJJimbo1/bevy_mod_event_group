@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 use bevy_app::App;
-use bevy_ecs::event::Event;
+use bevy_ecs::message::Message;
 
 pub use bevy_mod_event_group_derive::event_group;
 
@@ -18,7 +18,7 @@ impl<T, U> IntoGroup<U> for T where U: FromGroup<T> {
     }
 }
 
-pub trait EventGroup: Event {
+pub trait EventGroup: Message {
     fn add_event_group(app: &mut App) -> &mut App;
 }
 

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_mod_event_group::{EventGroupAppExt, event_group};
+use bevy_mod_event_group::{EventGroupAppExt, Message, event_group};
 
 #[derive(Debug, Default, Clone, Copy)]
 pub enum EventType {

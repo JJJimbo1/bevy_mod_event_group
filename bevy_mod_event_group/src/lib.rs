@@ -1,6 +1,5 @@
-use bevy_app::App;
-use bevy_ecs::message::Message;
-
+pub use bevy_app::{App, Update};
+pub use bevy_ecs::message::{Message, MessageReader, MessageWriter};
 pub use bevy_mod_event_group_derive::event_group;
 
 pub trait FromGroup<T>: Sized {

@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 use bevy_app::App;
 use bevy_ecs::message::Message;
 

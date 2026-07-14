@@ -19,10 +19,10 @@ impl Parse for EventGroupAttributes {
 pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
     let attrs: EventGroupAttributes = parse_macro_input!(attrs as EventGroupAttributes);
     let ast: DeriveInput = parse_macro_input!(input as DeriveInput);
-    
+
     let derives = attrs.derives;
     let name = ast.ident;
-    
+
     let (event_ident, event_type, sub_events) = {
         let Data::Struct(data) = &ast.data else { return quote!(compile_error!("Item must be a struct")).into(); };
         let Some(field) = data.fields
@@ -78,7 +78,7 @@ pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
         }
     };
 
-    let (idents, types, writers, events) = sub_events.iter().map(|token| {
+    let (idents, types, senders, events) = sub_events.iter().map(|token| {
         let upper_case = token;
         let lower_case = token.to_string().to_lowercase().parse::<proc_macro2::TokenStream>().unwrap();
         (
@@ -105,7 +105,7 @@ pub fn event_group(attrs: TokenStream, input: TokenStream) -> TokenStream {
                 use bevy_mod_event_group::IntoGroup;
                 for event in reader.read() {
                     match event.#event_ident {
-                        #writers
+                        #senders
                         _ => { }
                     }
                 }
